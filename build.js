@@ -2806,6 +2806,8 @@ async function main() {
   ]);
   pruneSubsets();
   fs.writeFileSync(path.join(OUTPUT_DIR, 'titles.css'), buildTitlesCss(fiction, subsetFonts, titleFonts));
+  // Temporary device probe (probe/index.html says what for); goes with the folder.
+  if (fs.existsSync(path.join(__dirname, 'probe'))) fs.cpSync(path.join(__dirname, 'probe'), path.join(OUTPUT_DIR, 'probe'), { recursive: true });
   console.log('Wrote titles.css');
   fs.writeFileSync(path.join(OUTPUT_DIR, 'title-fonts.css'), buildTitleFontsCss(titleFaceList, specimenFiles));
   console.log('Wrote title-fonts.css');
