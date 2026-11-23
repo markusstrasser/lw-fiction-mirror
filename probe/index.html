@@ -6,10 +6,17 @@
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex">
 <title>Colour font probe</title>
-<!-- Temporary: shows what one device does with the colour title faces.
-     Each row sets the same word three ways: as page text, on a plain canvas
-     and on a canvas made for frequent readback. The numbers are the inked
-     pixels of the two canvases. Remove this folder when the question is settled. -->
+<!-- Temporary: shows what one device does with the colour title faces and
+     with Safari's Adaptive Dark Mode. Remove this folder when both are settled.
+
+     Top lines: the browser, what it claims to support, and what the contents
+     page (loaded fresh in the two frames) decided for its colour titles.
+     Frames: the Goldfish and Our Beloved Monsters rows of the real page.
+     Swatches: one authored colour pair under five color-scheme values; the
+     ones Safari leaves white are the declarations it honours. This page
+     itself says "light dark" in the meta tag and "only light" in CSS.
+     Rows: one word in seven files, as page text and on two canvases (the
+     second made for readback), with each canvas's inked pixels. -->
 <style>
 :root{color-scheme:only light}
 body{margin:6px 8px;background:#fdfcf8;color:#222;font:10.5px/1.3 ui-monospace,Menlo,monospace;-webkit-text-size-adjust:100%}
@@ -27,20 +34,23 @@ body{margin:6px 8px;background:#fdfcf8;color:#222;font:10.5px/1.3 ui-monospace,M
 @font-face{font-family:'m-svg';src:url('m-svg.woff2') format('woff2');font-weight:400;font-display:block}
 @font-face{font-family:'m-svgkeep';src:url('m-svgkeep.woff2') format('woff2');font-weight:400;font-display:block}
 @font-face{font-family:'m-v0';src:url('m-v0.woff2') format('woff2');font-weight:400;font-display:block}
-pre{margin:0 0 4px;white-space:pre-wrap;word-break:break-all}
+pre{margin:0 0 3px;white-space:pre-wrap;word-break:break-all}
+.frames{display:flex;gap:6px;margin:0 0 3px}
+.frame{width:182px;height:34px;overflow:hidden;border:1px solid #999}
+iframe{border:0;width:402px;height:1500px;transform:scale(.45);transform-origin:0 0}
+.sw{display:flex;gap:4px;margin:0 0 3px;font-size:9px}
+.sw span{background:#fdfcf8;color:#222;border:1px solid #999;padding:1px 3px;white-space:nowrap}
 .row{display:flex;align-items:center;gap:5px;border-top:1px solid #d8d2c4;padding:1px 0}
 .row b{flex:0 0 88px;font-weight:400;font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden}
 .row i{display:block;font-style:normal;color:#a00}
 .row .t{color:#4a2a7a;background:#efe9dc;white-space:nowrap}
 canvas{background:#efe9dc;flex:none}
-.frame{width:182px;height:190px;overflow:hidden;border:1px solid #999}
-iframe{border:0;width:402px;height:420px;transform:scale(.45);transform-origin:0 0}
 </style>
 </head>
 <body>
 <pre id="out">running…</pre>
-<div>each row: face, load state, canvas ink a/b | page text | canvas a | canvas b</div>
-<div>G: 1 as the site declares, 2 Safari copy, 3 COLR file, 4 plain cut, 5 SVG only, 6 SVG literal + COLR, 7 COLRv0</div>
+<div class="frames"><div class="frame"><iframe id="fg" data-row=".t-goldfish" title="Goldfish row"></iframe></div><div class="frame"><iframe id="fm" data-row=".t-our-beloved-monsters" title="Our Beloved Monsters row"></iframe></div></div>
+<div class="sw"><span style="color-scheme:light dark">light dark</span><span style="color-scheme:light only">light only</span><span style="color-scheme:only light">only light</span><span style="color-scheme:light">light</span><span style="color-scheme:normal">normal</span><span>inherit</span></div>
 <div class="row" data-fam="g-site" data-w="500" data-size="19" data-text="Goldfish"><b>G1 site<i></i></b><span class="t" style="font:500 19px/1.3 'g-site',serif">Goldfish</span><canvas></canvas><canvas></canvas></div>
 <div class="row" data-fam="g-copy" data-w="500" data-size="19" data-text="Goldfish"><b>G2 copy<i></i></b><span class="t" style="font:500 19px/1.3 'g-copy',serif">Goldfish</span><canvas></canvas><canvas></canvas></div>
 <div class="row" data-fam="g-colr" data-w="500" data-size="19" data-text="Goldfish"><b>G3 colr<i></i></b><span class="t" style="font:500 19px/1.3 'g-colr',serif">Goldfish</span><canvas></canvas><canvas></canvas></div>
@@ -55,16 +65,16 @@ iframe{border:0;width:402px;height:420px;transform:scale(.45);transform-origin:0
 <div class="row" data-fam="m-svg" data-w="400" data-size="14" data-text="Monsters"><b>M5 svg<i></i></b><span class="t" style="font:400 14px/1.3 'm-svg',serif">Monsters</span><canvas></canvas><canvas></canvas></div>
 <div class="row" data-fam="m-svgkeep" data-w="400" data-size="14" data-text="Monsters"><b>M6 svg+colr<i></i></b><span class="t" style="font:400 14px/1.3 'm-svgkeep',serif">Monsters</span><canvas></canvas><canvas></canvas></div>
 <div class="row" data-fam="m-v0" data-w="400" data-size="14" data-text="Monsters"><b>M7 colr v0<i></i></b><span class="t" style="font:400 14px/1.3 'm-v0',serif">Monsters</span><canvas></canvas><canvas></canvas></div>
-<pre id="note">below: the contents page in a frame, read for the "site/used/fetched/faces" lines</pre>
-<div class="frame"><iframe id="site" src="../"></iframe></div>
 <script>
 (function(){
   var out=document.getElementById('out'),lines={};
   function show(){out.textContent=Object.keys(lines).map(function(k){return k+': '+lines[k]}).join('\n')}
   function sup(t){try{return CSS.supports('font-tech('+t+')')?1:0}catch(e){return '?'}}
+  function webgl(){try{return document.createElement('canvas').getContext('webgl')?1:0}catch(e){return 'x'}}
   lines.ua=navigator.userAgent.replace('Mozilla/5.0 ','');
-  lines.tech='COLRv1='+sup('color-COLRv1')+' COLRv0='+sup('color-COLRv0')+' SVG='+sup('color-SVG')+' sbix='+sup('color-sbix')+' | dpr '+devicePixelRatio+' | '+innerWidth+'x'+innerHeight;
-  lines.scheme='system dark='+(matchMedia('(prefers-color-scheme: dark)').matches?1:0)+' | page says meta "light dark", css "only light"';
+  lines.tech='v1='+sup('color-COLRv1')+' v0='+sup('color-COLRv0')+' svg='+sup('color-SVG')+' sbix='+sup('color-sbix')+' wasm='+(typeof WebAssembly==='object'?1:0)+' webgl='+webgl()+' dpr='+devicePixelRatio+' '+innerWidth+'x'+innerHeight;
+  lines.scheme='sys-dark='+(matchMedia('(prefers-color-scheme: dark)').matches?1:0)+' root="'+getComputedStyle(document.documentElement).colorScheme+'" meta="'+document.querySelector('meta[name=color-scheme]').content+'"';
+  lines.site='loading';
   show();
   function ink(c){try{var d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,n=0;for(var i=3;i<d.length;i+=4)if(d[i]>64)n++;return n}catch(e){return 'x'}}
   function draw(c,row,opts){
@@ -83,22 +93,34 @@ iframe{border:0;width:402px;height:420px;transform:scale(.45);transform-origin:0
       row.querySelector('i').textContent=status+' '+ink(cs[0])+'/'+ink(cs[1]);
     });
   })).then(function(){lines.rows='done';show()});
-  var frame=document.getElementById('site'),t0=Date.now();
-  (function poll(){
-    var d,w;try{w=frame.contentWindow;d=frame.contentDocument}catch(e){}
-    var attr=d&&d.documentElement&&d.documentElement.getAttribute('data-colour-faces');
-    if(attr!==null&&attr!==undefined&&(/goldfish/.test(attr)||Date.now()-t0>9000)||Date.now()-t0>12000){
+  // The real contents page, fetched fresh, each frame moved to one title's row.
+  var t0=Date.now();
+  [].forEach.call(document.querySelectorAll('iframe'),function(frame,n){
+    frame.src='../?probe='+t0;
+    (function poll(){
+      var d,w;try{w=frame.contentWindow;d=frame.contentDocument}catch(e){}
+      var el=d&&d.querySelector(frame.dataset.row);
+      if(el){
+        var row=el.closest('.story')||el;
+        frame.style.transform='scale(.45) translateY('+(4-Math.round(row.getBoundingClientRect().top+(w.scrollY||0)))+'px)';
+      }
+      var attr=d&&d.documentElement?d.documentElement.getAttribute('data-colour-faces'):null,waited=Date.now()-t0;
+      if(!(attr&&/goldfish/.test(attr)&&/monsters/.test(attr))&&waited<12000){setTimeout(poll,300);return}
+      setTimeout(poll,2000);
+      if(n)return;
       var fam=function(s){var e=d&&d.querySelector(s);return e?w.getComputedStyle(e).fontFamily.split(',')[0]:'?'};
-      var fetched=[];try{fetched=w.performance.getEntriesByType('resource').map(function(r){return r.name}).filter(function(n){return /goldfish|monsters/.test(n)}).map(function(n){return n.split('/').pop().split('?')[0].replace('title-','')})}catch(e){}
-      var st=[];try{w.document.fonts.forEach(function(f){if(/goldfish|monsters/.test(f.family))st.push(f.family.replace(/["']/g,'').replace('tf-','')+'='+f.status)})}catch(e){}
-      lines.site='check='+(attr===null||attr===undefined?'none':'"'+attr+'"');
+      var js='?',meta='?',root='?',fetched=[],st=[];
+      try{js=d.querySelector('script[src*="site.js"]').getAttribute('src').split('v=')[1]||'no hash'}catch(e){}
+      try{meta=d.querySelector('meta[name=color-scheme]').content;root=w.getComputedStyle(d.documentElement).colorScheme}catch(e){}
+      try{fetched=w.performance.getEntriesByType('resource').map(function(r){return r.name}).filter(function(x){return /goldfish|monsters/.test(x)}).map(function(x){return x.split('/').pop().split('?')[0].replace('title-','')})}catch(e){}
+      try{w.document.fonts.forEach(function(f){if(/goldfish|monsters/.test(f.family))st.push(f.family.replace(/["']/g,'').replace('tf-','')+'='+f.status)})}catch(e){}
+      lines.site='js='+js+' meta="'+meta+'" root="'+root+'" check='+(attr===null?'none':'"'+attr+'"');
       lines.used=fam('.t-goldfish')+' | '+fam('.t-our-beloved-monsters');
       lines.fetched=fetched.join(' ')||'none';
       lines.faces=st.join(' ')||'none';
-      show();return;
-    }
-    setTimeout(poll,300);
-  })();
+      show();
+    })();
+  });
 })();
 </script>
 </body>
